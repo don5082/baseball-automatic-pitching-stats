@@ -1,5 +1,7 @@
+import numpy as np
 from pybaseball import statcast
 import pandas as pd
+import pitches as pitch
 
 def cleanup_df(df):
     stats_df = df
@@ -22,8 +24,74 @@ def cleanup_df(df):
 def add_calc_cols(df):
     stats_df = df
 
-    # stats_df.
-    # TODO
+    # Add a column for intensity of the movement of a pitch, based on the pitch type
+
+    # pfx_x = Horizontal Break
+    # pfx_z = Vertical Break
+
+    conditions = [((np.abs(stats_df['pfx_x']) > np.abs(pitch.FF.avg_hb[1])) & (stats_df['pitch_type'] == "FF")) |  # above avg
+                  ((np.abs(stats_df['pfx_z']) > np.abs(pitch.FF.avg_vb[1])) & (stats_df['pitch_type'] == "FF")) |
+                  ((np.abs(stats_df['pfx_x']) > np.abs(pitch.SI.avg_hb[1])) & (stats_df['pitch_type'] == "SI")) |
+                  ((np.abs(stats_df['pfx_z']) > np.abs(pitch.SI.avg_vb[1])) & (stats_df['pitch_type'] == "SI")) |
+                  ((np.abs(stats_df['pfx_x']) > np.abs(pitch.FC.avg_hb[1])) & (stats_df['pitch_type'] == "FC")) |
+                  ((np.abs(stats_df['pfx_z']) > np.abs(pitch.FC.avg_vb[1])) & (stats_df['pitch_type'] == "FC")) |
+                  ((np.abs(stats_df['pfx_x']) > np.abs(pitch.SL.avg_hb[1])) & (stats_df['pitch_type'] == "SL")) |
+                  ((np.abs(stats_df['pfx_z']) > np.abs(pitch.SL.avg_vb[1])) & (stats_df['pitch_type'] == "SL")) |
+                  ((np.abs(stats_df['pfx_x']) > np.abs(pitch.ST.avg_hb[1])) & (stats_df['pitch_type'] == "ST")) |
+                  ((np.abs(stats_df['pfx_z']) > np.abs(pitch.ST.avg_vb[1])) & (stats_df['pitch_type'] == "ST")) |
+                  ((np.abs(stats_df['pfx_x']) > np.abs(pitch.CU.avg_hb[1])) & (stats_df['pitch_type'] == "CU")) |
+                  ((np.abs(stats_df['pfx_z']) > np.abs(pitch.CU.avg_vb[1])) & (stats_df['pitch_type'] == "CU")) |
+                  ((np.abs(stats_df['pfx_x']) > np.abs(pitch.KC.avg_hb[1])) & (stats_df['pitch_type'] == "KC")) |
+                  ((np.abs(stats_df['pfx_z']) > np.abs(pitch.KC.avg_vb[1])) & (stats_df['pitch_type'] == "KC")) |
+                  ((np.abs(stats_df['pfx_x']) > np.abs(pitch.SV.avg_hb[1])) & (stats_df['pitch_type'] == "SV")) |
+                  ((np.abs(stats_df['pfx_z']) > np.abs(pitch.SV.avg_vb[1])) & (stats_df['pitch_type'] == "SV")) |
+                  ((np.abs(stats_df['pfx_x']) > np.abs(pitch.CH.avg_hb[1])) & (stats_df['pitch_type'] == "CH")) |
+                  ((np.abs(stats_df['pfx_z']) > np.abs(pitch.CH.avg_vb[1])) & (stats_df['pitch_type'] == "CH")) |
+                  ((np.abs(stats_df['pfx_x']) > np.abs(pitch.FS.avg_hb[1])) & (stats_df['pitch_type'] == "FS")) |
+                  ((np.abs(stats_df['pfx_z']) > np.abs(pitch.FS.avg_vb[1])) & (stats_df['pitch_type'] == "FS")) |
+                  ((np.abs(stats_df['pfx_x']) > np.abs(pitch.KN.avg_hb[1])) & (stats_df['pitch_type'] == "KN")) |
+                  ((np.abs(stats_df['pfx_z']) > np.abs(pitch.KN.avg_vb[1])) & (stats_df['pitch_type'] == "KN")) |
+                  ((np.abs(stats_df['pfx_x']) > np.abs(pitch.FO.avg_hb[1])) & (stats_df['pitch_type'] == "FO")) |
+                  ((np.abs(stats_df['pfx_z']) > np.abs(pitch.FO.avg_vb[1])) & (stats_df['pitch_type'] == "FO")) |
+                  ((np.abs(stats_df['pfx_x']) > np.abs(pitch.SC.avg_hb[1])) & (stats_df['pitch_type'] == "SC")) |
+                  ((np.abs(stats_df['pfx_z']) > np.abs(pitch.SC.avg_vb[1])) & (stats_df['pitch_type'] == "SC")) |
+                  ((np.abs(stats_df['pfx_x']) > np.abs(pitch.EP.avg_hb[1])) & (stats_df['pitch_type'] == "EP")) |
+                  ((np.abs(stats_df['pfx_z']) > np.abs(pitch.EP.avg_vb[1])) & (stats_df['pitch_type'] == "EP")),
+
+                  ((np.abs(stats_df['pfx_x']) < np.abs(pitch.FF.avg_hb[0])) & (stats_df['pitch_type'] == "FF")) |  # below avg
+                  ((np.abs(stats_df['pfx_z']) < np.abs(pitch.FF.avg_vb[0])) & (stats_df['pitch_type'] == "FF")) |
+                  ((np.abs(stats_df['pfx_x']) < np.abs(pitch.SI.avg_hb[0])) & (stats_df['pitch_type'] == "SI")) |
+                  ((np.abs(stats_df['pfx_z']) < np.abs(pitch.SI.avg_vb[0])) & (stats_df['pitch_type'] == "SI")) |
+                  ((np.abs(stats_df['pfx_x']) < np.abs(pitch.FC.avg_hb[0])) & (stats_df['pitch_type'] == "FC")) |
+                  ((np.abs(stats_df['pfx_z']) < np.abs(pitch.FC.avg_vb[0])) & (stats_df['pitch_type'] == "FC")) |
+                  ((np.abs(stats_df['pfx_x']) < np.abs(pitch.SL.avg_hb[0])) & (stats_df['pitch_type'] == "SL")) |
+                  ((np.abs(stats_df['pfx_z']) < np.abs(pitch.SL.avg_vb[0])) & (stats_df['pitch_type'] == "SL")) |
+                  ((np.abs(stats_df['pfx_x']) < np.abs(pitch.ST.avg_hb[0])) & (stats_df['pitch_type'] == "ST")) |
+                  ((np.abs(stats_df['pfx_z']) < np.abs(pitch.ST.avg_vb[0])) & (stats_df['pitch_type'] == "ST")) |
+                  ((np.abs(stats_df['pfx_x']) < np.abs(pitch.CU.avg_hb[0])) & (stats_df['pitch_type'] == "CU")) |
+                  ((np.abs(stats_df['pfx_z']) < np.abs(pitch.CU.avg_vb[0])) & (stats_df['pitch_type'] == "CU")) |
+                  ((np.abs(stats_df['pfx_x']) < np.abs(pitch.KC.avg_hb[0])) & (stats_df['pitch_type'] == "KC")) |
+                  ((np.abs(stats_df['pfx_z']) < np.abs(pitch.KC.avg_vb[0])) & (stats_df['pitch_type'] == "KC")) |
+                  ((np.abs(stats_df['pfx_x']) < np.abs(pitch.SV.avg_hb[0])) & (stats_df['pitch_type'] == "SV")) |
+                  ((np.abs(stats_df['pfx_z']) < np.abs(pitch.SV.avg_vb[0])) & (stats_df['pitch_type'] == "SV")) |
+                  ((np.abs(stats_df['pfx_x']) < np.abs(pitch.CH.avg_hb[0])) & (stats_df['pitch_type'] == "CH")) |
+                  ((np.abs(stats_df['pfx_z']) < np.abs(pitch.CH.avg_vb[0])) & (stats_df['pitch_type'] == "CH")) |
+                  ((np.abs(stats_df['pfx_x']) < np.abs(pitch.FS.avg_hb[0])) & (stats_df['pitch_type'] == "FS")) |
+                  ((np.abs(stats_df['pfx_z']) < np.abs(pitch.FS.avg_vb[0])) & (stats_df['pitch_type'] == "FS")) |
+                  ((np.abs(stats_df['pfx_x']) < np.abs(pitch.KN.avg_hb[0])) & (stats_df['pitch_type'] == "KN")) |
+                  ((np.abs(stats_df['pfx_z']) < np.abs(pitch.KN.avg_vb[0])) & (stats_df['pitch_type'] == "KN")) |
+                  ((np.abs(stats_df['pfx_x']) < np.abs(pitch.FO.avg_hb[0])) & (stats_df['pitch_type'] == "FO")) |
+                  ((np.abs(stats_df['pfx_z']) < np.abs(pitch.FO.avg_vb[0])) & (stats_df['pitch_type'] == "FO")) |
+                  ((np.abs(stats_df['pfx_x']) < np.abs(pitch.SC.avg_hb[0])) & (stats_df['pitch_type'] == "SC")) |
+                  ((np.abs(stats_df['pfx_z']) < np.abs(pitch.SC.avg_vb[0])) & (stats_df['pitch_type'] == "SC")) |
+                  ((np.abs(stats_df['pfx_x']) < np.abs(pitch.EP.avg_hb[0])) & (stats_df['pitch_type'] == "EP")) |
+                  ((np.abs(stats_df['pfx_z']) < np.abs(pitch.EP.avg_vb[0])) & (stats_df['pitch_type'] == "EP"))]
+
+    choices = ['Above Avg.', 'Below Avg.']
+
+    print(f"conditions: {conditions}")
+
+    stats_df['break_amount'] = np.select(conditions, choices, default='Average')
 
     return stats_df
 
