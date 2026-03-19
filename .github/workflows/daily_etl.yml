@@ -1,0 +1,35 @@
+name: Daily Red Wings ETL
+
+# 1. THE TRIGGER: When should this run?
+on:
+  schedule:
+    # This is "Cron" syntax. It runs at 12:00 UTC (which is 8:00 AM Eastern Time)
+    - cron: '0 12 * * *'
+  # 'workflow_dispatch' lets you click a manual "Run" button on GitHub to test it!
+  workflow_dispatch:
+
+# 2. THE COMPUTER: What machine are we using?
+jobs:
+  run-etl-pipeline:
+    runs-on: ubuntu-latest
+
+    # 3. THE STEPS: What does the computer do?
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install Libraries
+        run: pip install -r requirements.txt
+
+      - name: Run ETL Script
+
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        run: python get_data.py
