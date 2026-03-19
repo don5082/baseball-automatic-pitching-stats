@@ -1,9 +1,13 @@
 import numpy as np
 from pybaseball import statcast
 import pandas as pd
+from sqlalchemy.exc import OperationalError
+import os
+from dotenv import load_dotenv
 import pitches as pitch
 import pymysql as pymy
 import sqlalchemy as sqla
+import logging
 
 
 def cleanup_df(df):
@@ -92,15 +96,26 @@ def add_calc_cols(df):
 
     choices = ['Above Avg.', 'Below Avg.']
 
-    print(f"conditions: {conditions}")
+    # print(f"conditions: {conditions}")
 
     stats_df['break_amount'] = np.select(conditions, choices, default='Average')
 
     return stats_df
 
 def main():
+    load_dotenv()
 
-    sqla.create_engine("mysql+pymysql://DB_USER:DB_PASSWORD@localhost:3306/mlb_pitching_stats")
+    db_password = os.getenv("DB_PASSWORD")
+    db_user = os.getenv("DB_USER")
+
+    try:
+        db_url = f"mysql+pymysql://{db_user}:{db_password}@localhost:3306/mlb_pitching_stats"
+        engine = sqla.create_engine(db_url)
+        conn = engine.connect()
+    except OperationalError as err:
+        logging.error("Cannot connect to DB %s", err)
+        print("There was an error connecting with the DB")
+        raise err
 
     stats_df = statcast()      # get yesterday's stats
 
@@ -112,10 +127,12 @@ def main():
     stats_df = cleanup_df(stats_df)
     stats_df = add_calc_cols(stats_df)
 
-    print(f"info: {stats_df.info()}")
-    print(f"shape: {stats_df.shape}")
-    print(f"columns: {stats_df.columns.tolist()}")
-    print(f"DF: {stats_df.to_string()}")
+    stats_df.to_sql(name="mlb_pitching_stats", con=conn, if_exists='append', index=False)
+
+    # print(f"info: {stats_df.info()}")
+    # print(f"shape: {stats_df.shape}")
+    # print(f"columns: {stats_df.columns.tolist()}")
+    # print(f"DF: {stats_df.to_string()}")
 
     pass
 
