@@ -2,6 +2,9 @@ import numpy as np
 from pybaseball import statcast
 import pandas as pd
 import pitches as pitch
+import pymysql as pymy
+import sqlalchemy as sqla
+
 
 def cleanup_df(df):
     stats_df = df
@@ -96,6 +99,8 @@ def add_calc_cols(df):
     return stats_df
 
 def main():
+
+    sqla.create_engine("mysql+pymysql://DB_USER:DB_PASSWORD@localhost:3306/mlb_pitching_stats")
 
     stats_df = statcast()      # get yesterday's stats
 
