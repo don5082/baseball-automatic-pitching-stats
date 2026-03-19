@@ -107,9 +107,10 @@ def main():
 
     db_password = os.getenv("DB_PASSWORD")
     db_user = os.getenv("DB_USER")
+    db_host = os.getenv("DB_HOST")
 
     try:
-        db_url = f"mysql+pymysql://{db_user}:{db_password}@localhost:3306/mlb_pitching_stats"
+        db_url = f"mysql+pymysql://{db_user}:{db_password}@{db_host}:3306/mlb_pitching_stats"
         engine = sqla.create_engine(db_url)
         conn = engine.connect()
     except OperationalError as err:
