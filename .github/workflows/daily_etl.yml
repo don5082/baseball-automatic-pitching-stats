@@ -1,4 +1,4 @@
-name: Daily Red Wings ETL
+name: Daily MLB ETL
 
 # 1. THE TRIGGER: When should this run?
 on:
