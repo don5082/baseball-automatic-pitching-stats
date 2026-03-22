@@ -1,4 +1,4 @@
-name: Daily MLB ETL
+name: Daily MLBETL
 
 # 1. THE TRIGGER: When should this run?
 on:
